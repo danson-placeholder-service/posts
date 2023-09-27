@@ -1,0 +1,10 @@
+services:
+  postgres:
+    container_name: blog_postgres_db
+    image: 'postgres:16.0'
+    environment:
+      - 'POSTGRES_DB=blog'
+      - 'POSTGRES_PASSWORD=secret_password'
+      - 'POSTGRES_USER=blog'
+    ports:
+      - '5432'
