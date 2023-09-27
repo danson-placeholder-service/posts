@@ -1,13 +1,14 @@
 package dev.danvega.danson.post;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.jdbc.JdbcConnectionDetails;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -29,14 +30,6 @@ class PostControllerIntTest {
 
     @Autowired
     TestRestTemplate restTemplate;
-
-    @Autowired
-    JdbcConnectionDetails jdbcConnectionDetails;
-
-    @BeforeEach
-    void setUp() {
-        printConnectionDetails();
-    }
 
     @Test
     void connectionEstablished() {
@@ -106,16 +99,6 @@ class PostControllerIntTest {
     void shouldDeleteWithValidID() {
         ResponseEntity<Void> response = restTemplate.exchange("/api/posts/88", HttpMethod.DELETE, null, Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-    }
-
-    private void printConnectionDetails() {
-        var jdbc = STR."""
-            Details: \{jdbcConnectionDetails.getClass().getName()}
-            JDBC URL: \{jdbcConnectionDetails.getJdbcUrl()}
-            Username: \{jdbcConnectionDetails.getUsername()}
-            Password: \{jdbcConnectionDetails.getPassword()}
-					""";
-        System.out.println(jdbc);
     }
 
 }
