@@ -35,7 +35,17 @@ public class PostController {
 
     @PutMapping("/{id}")
     Post update(@PathVariable Integer id, @RequestBody Post post) {
-        return repository.save(post);
+        return repository.findById(id)
+                .map(existingPost -> {
+                    Post updatedPost = new Post(existingPost.id(),
+                            existingPost.userId(),
+                            post.title(),
+                            post.body(),
+                            existingPost.version());
+
+                    return repository.save(updatedPost);
+                })
+                .orElseThrow(PostNotFoundException::new);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
