@@ -1,6 +1,8 @@
 package dev.danvega.danson.post;
 
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,8 +11,9 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/posts")
-public class PostController {
+class PostController {
 
+    private static final Logger log = LoggerFactory.getLogger(PostController.class);
     private final PostRepository repository;
 
     public PostController(PostRepository repository) {
@@ -35,17 +38,18 @@ public class PostController {
 
     @PutMapping("/{id}")
     Post update(@PathVariable Integer id, @RequestBody Post post) {
-        return repository.findById(id)
-                .map(existingPost -> {
-                    Post updatedPost = new Post(existingPost.id(),
-                            existingPost.userId(),
-                            post.title(),
-                            post.body(),
-                            existingPost.version());
+        Optional<Post> existing = repository.findById(id);
+        if(existing.isPresent()) {
+            Post updatedPost = new Post(existing.get().id(),
+                    existing.get().userId(),
+                    post.title(),
+                    post.body(),
+                    existing.get().version());
 
-                    return repository.save(updatedPost);
-                })
-                .orElseThrow(PostNotFoundException::new);
+            return repository.save(updatedPost);
+        } else {
+            throw new PostNotFoundException();
+        }
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
